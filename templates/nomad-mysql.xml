@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <!-- Hyphenated name on purpose: NOMAD rejects DB hostnames containing underscores. -->
+  <Name>nomad-mysql</Name>
+  <Repository>mysql:8.0</Repository>
+  <Registry>https://hub.docker.com/_/mysql</Registry>
+  <Network>project-nomad_default</Network>
+  <MyIP/>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/crosstalk-solutions/project-nomad/issues</Support>
+  <Project>https://hub.docker.com/_/mysql</Project>
+  <Overview>MySQL 8.0 database for Project N.O.M.A.D. (nomad_admin). Install this before nomad_admin.[br][br]
+Runs only on the project-nomad_default network, with no ports published to your LAN. Create the network first: [code]docker network create project-nomad_default[/code][br][br]
+MYSQL_PASSWORD must equal DB_PASSWORD in the nomad_admin template. The passwords only take effect the first time the data folder is initialized; changing them later needs a fresh data folder or a manual change inside MySQL.</Overview>
+  <Category>Tools: Other:</Category>
+  <WebUI/>
+  <TemplateURL>https://raw.githubusercontent.com/ncab1791/nelsonizedunraid/main/templates/nomad-mysql.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/crosstalk-solutions/project-nomad/main/admin/public/favicon-512x512.png</Icon>
+  <ExtraParams>--restart=unless-stopped --health-cmd="mysqladmin ping -h localhost" --health-interval=30s --health-timeout=10s --health-retries=10</ExtraParams>
+  <PostArgs/>
+  <CPUset/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires>The project-nomad_default Docker network.</Requires>
+
+  <Config Name="Data" Target="/var/lib/mysql" Default="/mnt/user/appdata/project-nomad/mysql" Mode="rw" Description="MySQL data files. A cache/pool path such as /mnt/cache/appdata/... performs better than /mnt/user." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/project-nomad/mysql</Config>
+  <Config Name="MYSQL_ROOT_PASSWORD" Target="MYSQL_ROOT_PASSWORD" Default="" Mode="" Description="Root password for MySQL. Pick a strong random value." Type="Variable" Display="always" Required="true" Mask="true"></Config>
+  <Config Name="MYSQL_PASSWORD" Target="MYSQL_PASSWORD" Default="" Mode="" Description="Password for the NOMAD database user. Must match DB_PASSWORD in nomad_admin." Type="Variable" Display="always" Required="true" Mask="true"></Config>
+  <Config Name="MYSQL_DATABASE" Target="MYSQL_DATABASE" Default="nomad" Mode="" Description="Must match DB_DATABASE in nomad_admin." Type="Variable" Display="advanced" Required="true" Mask="false">nomad</Config>
+  <Config Name="MYSQL_USER" Target="MYSQL_USER" Default="nomad_user" Mode="" Description="Must match DB_USER in nomad_admin." Type="Variable" Display="advanced" Required="true" Mask="false">nomad_user</Config>
+</Container>

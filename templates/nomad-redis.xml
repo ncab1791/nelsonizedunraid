@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <!-- Hyphenated name on purpose: NOMAD rejects Redis hostnames containing underscores. -->
+  <Name>nomad-redis</Name>
+  <Repository>redis:7-alpine</Repository>
+  <Registry>https://hub.docker.com/_/redis</Registry>
+  <Network>project-nomad_default</Network>
+  <MyIP/>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/crosstalk-solutions/project-nomad/issues</Support>
+  <Project>https://hub.docker.com/_/redis</Project>
+  <Overview>Redis 7 cache and job queue for Project N.O.M.A.D. (nomad_admin). Install this before nomad_admin.[br][br]
+Runs only on the project-nomad_default network, with no ports published to your LAN. Create the network first: [code]docker network create project-nomad_default[/code]</Overview>
+  <Category>Tools: Other:</Category>
+  <WebUI/>
+  <TemplateURL>https://raw.githubusercontent.com/ncab1791/nelsonizedunraid/main/templates/nomad-redis.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/crosstalk-solutions/project-nomad/main/admin/public/favicon-512x512.png</Icon>
+  <ExtraParams>--restart=unless-stopped --health-cmd="redis-cli ping" --health-interval=30s --health-timeout=10s --health-retries=3</ExtraParams>
+  <PostArgs/>
+  <CPUset/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires>The project-nomad_default Docker network.</Requires>
+
+  <Config Name="Data" Target="/data" Default="/mnt/user/appdata/project-nomad/redis" Mode="rw" Description="Redis persistence files." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/project-nomad/redis</Config>
+</Container>

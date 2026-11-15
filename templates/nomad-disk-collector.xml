@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>nomad_disk_collector</Name>
+  <Repository>ghcr.io/crosstalk-solutions/project-nomad-disk-collector:latest</Repository>
+  <Registry>https://github.com/crosstalk-solutions/project-nomad/pkgs/container/project-nomad-disk-collector</Registry>
+  <Network>none</Network>
+  <MyIP/>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/crosstalk-solutions/project-nomad/issues</Support>
+  <Project>https://github.com/crosstalk-solutions/project-nomad</Project>
+  <Overview>Optional helper for Project N.O.M.A.D. Every 2 minutes it reads your disks and filesystem usage (read-only) and writes a small JSON file into NOMAD's storage folder, so the Command Center can show disk info. It needs no network.[br][br]
+The Storage path must be exactly the same as the Storage path in the nomad_admin template.</Overview>
+  <Category>Tools: Other:</Category>
+  <WebUI/>
+  <TemplateURL>https://raw.githubusercontent.com/ncab1791/nelsonizedunraid/main/templates/nomad-disk-collector.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/crosstalk-solutions/project-nomad/main/admin/public/favicon-512x512.png</Icon>
+  <ExtraParams>--restart=unless-stopped</ExtraParams>
+  <PostArgs/>
+  <CPUset/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires>nomad_admin from this repo.</Requires>
+
+  <Config Name="Host root (read-only)" Target="/host" Default="/" Mode="ro,rslave" Description="Read-only view of the host filesystem, used to read disk and mount info." Type="Path" Display="advanced" Required="true" Mask="false">/</Config>
+  <Config Name="Storage" Target="/storage" Default="/mnt/user/appdata/project-nomad/storage" Mode="rw" Description="Must be exactly the same as the Storage path in nomad_admin." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/project-nomad/storage</Config>
+</Container>

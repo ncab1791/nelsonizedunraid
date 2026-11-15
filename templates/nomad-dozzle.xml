@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>nomad_dozzle</Name>
+  <Repository>amir20/dozzle:v10.0</Repository>
+  <Registry>https://hub.docker.com/r/amir20/dozzle</Registry>
+  <Network>project-nomad_default</Network>
+  <MyIP/>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/crosstalk-solutions/project-nomad/issues</Support>
+  <Project>https://github.com/amir20/dozzle</Project>
+  <Overview>Optional log viewer for Project N.O.M.A.D. The "Service Logs &amp; Metrics" link in NOMAD's Settings opens it on port 9999, so keep the host port at 9999 if you want that link to work.[br][br]
+Container actions and shell access are turned off, matching upstream: Dozzle has no login and can see the Docker socket.</Overview>
+  <Category>Tools: Other:</Category>
+  <WebUI>http://[IP]:[PORT:8080]/</WebUI>
+  <TemplateURL>https://raw.githubusercontent.com/ncab1791/nelsonizedunraid/main/templates/nomad-dozzle.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/crosstalk-solutions/project-nomad/main/admin/public/favicon-512x512.png</Icon>
+  <ExtraParams>--restart=unless-stopped</ExtraParams>
+  <PostArgs/>
+  <CPUset/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires>The project-nomad_default Docker network.</Requires>
+
+  <Config Name="WebUI Port" Target="8080" Default="9999" Mode="tcp" Description="Keep at 9999 for NOMAD's Settings link to work." Type="Port" Display="always" Required="true" Mask="false">9999</Config>
+  <Config Name="Docker socket" Target="/var/run/docker.sock" Default="/var/run/docker.sock" Mode="ro" Description="Read access to container logs." Type="Path" Display="advanced" Required="true" Mask="false">/var/run/docker.sock</Config>
+  <Config Name="DOZZLE_ENABLE_ACTIONS" Target="DOZZLE_ENABLE_ACTIONS" Default="false" Mode="" Description="Leave false: true lets anyone on your LAN stop/restart containers." Type="Variable" Display="advanced" Required="true" Mask="false">false</Config>
+  <Config Name="DOZZLE_ENABLE_SHELL" Target="DOZZLE_ENABLE_SHELL" Default="false" Mode="" Description="Leave false: shell access plus the Docker socket is root on the host." Type="Variable" Display="advanced" Required="true" Mask="false">false</Config>
+</Container>
