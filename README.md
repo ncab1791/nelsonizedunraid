@@ -4,16 +4,22 @@ Unraid Docker templates (XML) for apps that don't have a good Community Applicat
 
 ## Using these templates on Unraid
 
-1. In Unraid, go to **Docker** and switch the top-right toggle to **Advanced View**.
-2. Scroll to **Template Repositories**, add this line, and click **Save**:
+Unraid 6.10 and later no longer has a "Template Repositories" box, so you copy the XMLs onto the flash drive instead.
 
+1. Open a terminal (the `>_` icon at the top right of the Unraid web UI) and paste:
+
+   ```bash
+   cd /boot/config/plugins/dockerMan/templates-user && \
+   for f in project-nomad:nomad_admin nomad-mysql:nomad-mysql nomad-redis:nomad-redis \
+            nomad-dozzle:nomad_dozzle nomad-disk-collector:nomad_disk_collector; do
+     wget -q -O "my-${f#*:}.xml" "https://raw.githubusercontent.com/ncab1791/nelsonizedunraid/main/templates/${f%%:*}.xml" \
+       && echo "got ${f#*:}"
+   done
    ```
-   https://github.com/ncab1791/nelsonizedunraid
-   ```
 
-3. Go to **Docker → Add Container** and choose a template from the **Template** dropdown.
+2. Go to **Docker → Add Container**, open the **Template** dropdown, and pick the template under **User templates**.
 
-You can also copy a single XML to `/boot/config/plugins/dockerMan/templates-user/` on the flash drive. It shows up under **User templates** in that dropdown.
+Re-run the command to pull updated templates. It overwrites the saved template, not your running container, so re-check your settings before you apply.
 
 ## Templates
 
