@@ -11,7 +11,8 @@ Unraid 6.10 and later no longer has a "Template Repositories" box, so you copy t
    ```bash
    cd /boot/config/plugins/dockerMan/templates-user && \
    for f in project-nomad:nomad_admin nomad-mysql:nomad-mysql nomad-redis:nomad-redis \
-            nomad-dozzle:nomad_dozzle nomad-disk-collector:nomad_disk_collector; do
+            nomad-dozzle:nomad_dozzle nomad-disk-collector:nomad_disk_collector \
+         textymcspeechy:textymcspeechy-piper; do
      wget -q -O "my-${f#*:}.xml" "https://raw.githubusercontent.com/ncab1791/nelsonizedunraid/main/templates/${f%%:*}.xml" \
        && echo "got ${f#*:}"
    done
@@ -30,6 +31,7 @@ Re-run the command to pull updated templates. It overwrites the saved template, 
 | [`nomad-redis.xml`](templates/nomad-redis.xml) | `nomad-redis` | Redis 7 for NOMAD (required) |
 | [`nomad-dozzle.xml`](templates/nomad-dozzle.xml) | `nomad_dozzle` | Log viewer for NOMAD (optional) |
 | [`nomad-disk-collector.xml`](templates/nomad-disk-collector.xml) | `nomad_disk_collector` | Disk-usage info for NOMAD's UI (optional) |
+| [`textymcspeechy.xml`](templates/textymcspeechy.xml) | `textymcspeechy-piper` | Piper engine for TextyMcSpeechy voice training (NVIDIA GPU) |
 
 ---
 
@@ -81,3 +83,65 @@ Under **Docker**, unlock the container list and drag `nomad-mysql` and `nomad-re
 ### Apps NOMAD installs
 
 When you install something from the Supply Depot, NOMAD creates that container itself through the Docker socket. Those containers show up in the Unraid Docker tab, but they have no Unraid template, so manage and update them from the NOMAD UI.
+
+---
+
+## TextyMcSpeechy on Unraid
+
+[TextyMcSpeechy](https://github.com/domesticatedviking/TextyMcSpeechy) trains custom [Piper](https://github.com/rhasspy/piper) text-to-speech voices. It is **not a web app**: you drive it with shell scripts in a terminal, and those scripts send the heavy work to the `textymcspeechy-piper` container with `docker exec`. On Unraid that means you run the scripts in the Unraid terminal and keep the container running from this template.
+
+### Requirements
+
+- An NVIDIA GPU, with the **Nvidia Driver** plugin installed from the Apps tab.
+- About 15 GB for the image and base files, and 50 GB or more free for checkpoints.
+- On the Unraid host, the training scripts call `tmux`, `bc` and `inotifywait`. Check with:
+
+  ```bash
+  which tmux bc inotifywait
+  ```
+
+  If one is missing, the training scripts will fail at the step that uses it. Unraid has no `apt`, so you'd have to add the tool another way.
+
+### Setup
+
+1. **Download TextyMcSpeechy onto the server.** In the Unraid terminal:
+
+   ```bash
+   cd /mnt/user/appdata
+   wget -qO- https://github.com/domesticatedviking/TextyMcSpeechy/archive/refs/heads/main.tar.gz | tar xz
+   mv TextyMcSpeechy-main TextyMcSpeechy
+   cd TextyMcSpeechy
+   find . -name "*.sh" -exec chmod +x {} +
+   ```
+
+   Skip upstream's `setup.sh`. It uses `apt-get`, which Unraid doesn't have.
+
+2. **Point the start script at the Unraid container.** Upstream's `run_container.sh` checks for the toolkit with `dpkg` and then runs its own `docker run`. Neither works here, so replace it:
+
+   ```bash
+   cat > /mnt/user/appdata/TextyMcSpeechy/run_container.sh <<'EOF'
+   #!/bin/bash
+   # Unraid: the container is managed by the Docker tab; just make sure it's running.
+   docker start textymcspeechy-piper >/dev/null && echo "textymcspeechy-piper is running"
+   tts_dojo/ESPEAK_RULES/automated_espeak_rules.sh
+   EOF
+   ```
+
+3. **Install the template** (`textymcspeechy-piper` under User templates). Keep the container name exactly `textymcspeechy-piper`. Leave **TTS Dojo** at `/mnt/user/appdata/TextyMcSpeechy/tts_dojo`, or change it to wherever you put the folder in step 1. The first start pulls about 6 GB.
+
+### Training a voice
+
+Follow upstream's [quick start guide](https://github.com/domesticatedviking/TextyMcSpeechy/blob/main/quick_start_guide.md), with one change. `create_dataset.sh` needs `ffmpeg`, which Unraid lacks but the container has, so run that step inside the container:
+
+```bash
+docker exec -it -w /app/tts_dojo/DATASETS textymcspeechy-piper ./create_dataset.sh your_voice_folder
+```
+
+Run everything else (`download_defaults.sh`, `newdojo.sh`, `run_training.sh`) from the Unraid terminal as the guide says. Training runs inside `tmux`, so it keeps going if you close the browser terminal; reattach with `tmux attach`.
+
+While training runs, TensorBoard is at `http://<unraid-ip>:6006`. Finished voices are written to `tts_dojo/<name>_dojo/tts_voices`.
+
+### Notes
+
+- The container runs as root, matching the Unraid terminal, so files the scripts and the container create don't fight over permissions. If you browse the folder over SMB and can't edit files, run **Tools → New Permissions** on the appdata share.
+- The `tts.sh` voice tester plays audio with `aplay`, which won't work on a headless server. Copy the generated `.wav` off the server to listen.

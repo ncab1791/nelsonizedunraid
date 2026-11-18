@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <!-- The name MUST stay "textymcspeechy-piper": every TextyMcSpeechy script runs
+       "docker exec textymcspeechy-piper ..." to reach Piper. -->
+  <Name>textymcspeechy-piper</Name>
+  <Repository>domesticatedviking/textymcspeechy-piper:latest</Repository>
+  <Registry>https://hub.docker.com/r/domesticatedviking/textymcspeechy-piper</Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/domesticatedviking/TextyMcSpeechy/issues</Support>
+  <Project>https://github.com/domesticatedviking/TextyMcSpeechy</Project>
+  <Overview>TextyMcSpeechy trains custom Piper text-to-speech voices from your own recordings or any voice dataset, fully offline. The finished .onnx voices work with Home Assistant.[br][br]
+[b]This is not a web app.[/b] This container is the Piper training engine; it idles until the TextyMcSpeechy scripts (run from the Unraid terminal) send it work. You clone the TextyMcSpeechy repo onto your server and map its tts_dojo folder here. See the nelsonizedunraid README for the full Unraid setup.[br][br]
+[b]Requirements:[/b] an NVIDIA GPU and the Nvidia Driver plugin from Community Applications. The image is about 6 GB to download and over 10 GB on disk; plan on 50 GB+ free for checkpoints.[br][br]
+The WebUI link opens TensorBoard on port 6006, which only answers while a training session is running.</Overview>
+  <Category>Tools: AI:</Category>
+  <WebUI>http://[IP]:[PORT:6006]/</WebUI>
+  <TemplateURL>https://raw.githubusercontent.com/ncab1791/nelsonizedunraid/main/templates/textymcspeechy.xml</TemplateURL>
+  <Icon/>
+  <!-- tty keeps the image's default bash shell alive so the container stays up for docker exec. -->
+  <ExtraParams>--runtime=nvidia --tty --hostname=textymcspeechy-piper</ExtraParams>
+  <PostArgs/>
+  <CPUset/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires>An NVIDIA GPU with the Nvidia Driver plugin installed, and the TextyMcSpeechy repo cloned on the server (see the nelsonizedunraid README).</Requires>
+
+  <Config Name="TTS Dojo" Target="/app/tts_dojo" Default="/mnt/user/appdata/TextyMcSpeechy/tts_dojo" Mode="rw" Description="The tts_dojo folder inside your clone of the TextyMcSpeechy repo. Datasets, pretrained checkpoints, training runs and finished voices all live here." Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/TextyMcSpeechy/tts_dojo</Config>
+  <Config Name="TensorBoard Port" Target="6006" Default="6006" Mode="tcp" Description="TensorBoard training graphs. Only active while training." Type="Port" Display="always" Required="false" Mask="false">6006</Config>
+  <Config Name="NVIDIA_VISIBLE_DEVICES" Target="NVIDIA_VISIBLE_DEVICES" Default="all" Mode="" Description="'all', or the GPU UUID from the Nvidia Driver plugin page to pin one card." Type="Variable" Display="always" Required="true" Mask="false">all</Config>
+  <Config Name="NVIDIA_DRIVER_CAPABILITIES" Target="NVIDIA_DRIVER_CAPABILITIES" Default="compute,utility" Mode="" Description="" Type="Variable" Display="advanced" Required="true" Mask="false">compute,utility</Config>
+</Container>
